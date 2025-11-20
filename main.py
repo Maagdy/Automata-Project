@@ -61,33 +61,16 @@ def read_file(path):
 
 
 def main():
-    # Try multiple possible file locations
-    possible_paths = [
-        "random_big_blob.txt",
-        "data/random_data.txt",
-        "../data/random_data.txt",
-        "random_data.txt"
-    ]
+    # Single file path
+    file_path = "data/random_data.txt"
     
-    text = None
-    used_path = None
-    
-    for path in possible_paths:
-        try:
-            text = read_file(path)
-            used_path = path
-            print(f"✓ Successfully loaded: {path}\n")
-            break
-        except FileNotFoundError:
-            continue
-    
-    if text is None:
-        print("ERROR: Could not find data file in any of these locations:")
-        for path in possible_paths:
-            print(f"  - {path}")
-        print("\nPlease ensure your data file exists in one of these locations.")
+    try:
+        text = read_file(file_path)
+        print(f"✓ Successfully loaded: {file_path}\n")
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
         return
-
+    
     # Extract patterns
     emails = find_emails(text)
     phones = find_phones(text)
