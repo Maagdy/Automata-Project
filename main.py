@@ -40,63 +40,46 @@
 
 # if __name__ == "__main__":
 #     main()# main.py# main.py
-# main.py
-from patterns3 import (
-    find_emails,
-    find_phones,
-    find_dates,
-    find_addresses
-)
-from pathlib import Path
-
-
-def read_file(path):
-    """Read text file with UTF-8 encoding."""
-    file_path = Path(path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-    
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return f.read()
+from final_version.file_loader import load_file
+from final_version.extractors import extract_emails, extract_phones, extract_dates
+from final_version.analyzer import analyze_matches
+from final_version.writes import write_analysis, write_masked
 
 
 def main():
-    # Single file path
-    file_path = "data/random_data.txt"
-    
+    # file_path = "data/test.txt"  
+    # file_path = "data/random_data.txt"  
+    file_path = "data/employees_plain_txt.txt"  
+    # file_path = "final_version/dataset/DOCX_data.docx"        
+    # file_path = "final_version/dataset/PDF_data.pdf"        
+    # file_path = "final_version/dataset/TXT_data.txt"        
+
     try:
-        text = read_file(file_path)
-        print(f"✓ Successfully loaded: {file_path}\n")
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        return
-    
-    # Extract patterns
-    emails = find_emails(text)
-    phones = find_phones(text)
-    dates = find_dates(text)
-    addresses = find_addresses(text)
+        # This automatically handles TXT, PDF, and DOCX using its extension
+        text = load_file(file_path)
+        print("✓ File loaded successfully")
 
-    # Display results with detailed location info
-    print("===== EMAILS =====")
-    for match_text, line, start_col, end_col in emails[:10]:
-        print(f"Line {line}, after {start_col-1} chars: '{match_text}'")
-    print(f"Total found: {len(emails)}\n")
+        # Extract data
+        emails = extract_emails(text)
+        phones = extract_phones(text)
+        dates = extract_dates(text)
 
-    print("===== PHONES =====")
-    for match_text, line, start_col, end_col in phones[:10]:
-        print(f"Line {line}, after {start_col-1} chars: '{match_text}'")
-    print(f"Total found: {len(phones)}\n")
+        print("\nFound:")
+        print(f"  - {len(emails)} emails")
+        print(f"  - {len(phones)} phones")
+        print(f"  - {len(dates)} dates")
 
-    print("===== DATES =====")
-    for match_text, line, start_col, end_col in dates[:10]:
-        print(f"Line {line}, after {start_col-1} chars: '{match_text}'")
-    print(f"Total found: {len(dates)}\n")
+        # Analyze positions
+        results = analyze_matches(text, emails, phones, dates)
 
-    print("===== ADDRESSES =====")
-    for match_text, line, start_col, end_col in addresses[:10]:
-        print(f"Line {line}, after {start_col-1} chars: '{match_text}'")
-    print(f"Total found: {len(addresses)}\n")
+        # Write result files
+        write_analysis(results)       # analysis_output.txt
+        write_masked(text, phones)    # masked_output.txt
+
+        print("\n✓ All done!")
+
+    except Exception as e:
+        print(f"✗ Error: {e}")
 
 
 if __name__ == "__main__":
