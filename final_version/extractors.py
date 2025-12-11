@@ -3,9 +3,9 @@ import re
 
 
 # Regex patterns
-EMAIL_PATTERN = r'\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b'
-PHONE_PATTERN = r'\+?\d[\d\s\-\(\)]{7,}\d'
-DATE_PATTERN = r'\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{4}[-/]\d{1,2}[-/]\d{1,2})\b'
+DATE_PATTERN  = r'\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{4}[-/]\d{1,2}[-/]\d{1,2})\b'
+EMAIL_PATTERN = r'\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}\b'
+PHONE_PATTERN = r'\b(?:\+?\d{1,3}[-.\s]?)?(?:\(?\d{2,4}\)?[-.\s]?){1,3}\d{3,4}\b'
 
 
 def extract_emails(text):
