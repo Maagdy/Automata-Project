@@ -2,64 +2,63 @@ import re
 from .extractors import EMAIL_PATTERN, PHONE_PATTERN, DATE_PATTERN
 
 
-def get_position(text, pattern, match_value):
-    """Get line and column number for a match"""
-    positions = []
-    
-    for match in re.finditer(pattern, text, re.IGNORECASE):
-        if match.group() == match_value:
-            start = match.start()
-            
-            # Calculate line and column
-            lines = text[:start].split('\n')
-            line_num = len(lines)
-            col_num = len(lines[-1]) + 1
-            
-            positions.append({
-                'word': match_value,
-                'line': line_num,
-                'col': col_num
-            })
-    
-    return positions
-
-
 def analyze_matches(text, emails, phones, dates):
-    """Analyze all matches and get their positions"""
     results = []
-    
-    # Analyze emails
-    for email in emails:
-        positions = get_position(text, EMAIL_PATTERN, email)
-        for pos in positions:
-            results.append({
-                'type': 'email',
-                'word': pos['word'],
-                'line': pos['line'],
-                'col': pos['col']
-            })
-    
-    # Analyze phones
-    for phone in phones:
-        positions = get_position(text, PHONE_PATTERN, phone)
-        for pos in positions:
-            results.append({
-                'type': 'phone',
-                'word': pos['word'],
-                'line': pos['line'],
-                'col': pos['col']
-            })
-    
-    # Analyze dates
-    for date in dates:
-        positions = get_position(text, DATE_PATTERN, date)
-        for pos in positions:
-            results.append({
-                'type': 'date',
-                'word': pos['word'],
-                'line': pos['line'],
-                'col': pos['col']
-            })
-    
-    return results
 
+    allowed = {
+        "email": set(emails),
+        "phone": set(phones),
+        "date":  set(dates),
+    }
+
+    patterns = {
+        "email": EMAIL_PATTERN,
+        "phone": PHONE_PATTERN,
+        "date":  DATE_PATTERN,
+    }
+
+    BULLETS = {"-", "•", "*", "–", "—"}
+
+    lines = text.splitlines()
+    logical_line = 0
+
+    for line in lines:
+        if not line.strip():
+            continue
+
+        logical_line += 1
+
+        raw_words = line.split()
+        words = [w for w in raw_words if w not in BULLETS]
+
+        for typ, pattern in patterns.items():
+            for match in re.finditer(pattern, line, re.IGNORECASE):
+                value = match.group()
+
+                if value not in allowed[typ]:
+                    continue
+
+                char_pos = match.start()
+                word_number = 1
+                current_index = 0
+
+                for i, word in enumerate(words, start=1):
+                    word_start = line.find(word, current_index)
+                    word_end = word_start + len(word)
+
+                    if word_start <= char_pos < word_end:
+                        word_number = i
+                        break
+
+                    current_index = word_end
+
+                results.append({
+                    "type": typ,
+                    "word": value,
+                    "line": logical_line,
+                    "col": match.start() + 1,
+                    "word_number": word_number
+                })
+
+    results.sort(key=lambda r: (r["line"], r["col"]))
+    return results

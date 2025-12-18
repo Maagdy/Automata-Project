@@ -40,6 +40,11 @@
 
 # if __name__ == "__main__":
 #     main()# main.py# main.py
+
+
+
+
+# FINAL VERSION OF THE PROJECT
 from final_version.file_loader import load_file
 from final_version.extractors import extract_emails, extract_phones, extract_dates
 from final_version.analyzer import analyze_matches
@@ -47,39 +52,35 @@ from final_version.writes import write_analysis, write_masked
 
 
 def main():
-    # file_path = "data/test.txt"  
-    # file_path = "data/random_data.txt"  
-    file_path = "data/employees_plain_txt.txt"  
-    # file_path = "final_version/dataset/DOCX_data.docx"        
-    # file_path = "final_version/dataset/PDF_data.pdf"        
-    # file_path = "final_version/dataset/TXT_data.txt"        
+    # file_path = "data/test.txt"
+    # file_path = "data/random_data.txt"
+    # file_path = "data/employees_plain_txt.txt"
+    # file_path = "final_version/dataset/DOCX_data.docx"
+    # file_path = "final_version/dataset/PDF_data.pdf"
+    file_path = "final_version/dataset/TXT_data.txt"
 
     try:
-        # This automatically handles TXT, PDF, and DOCX using its extension
         text = load_file(file_path)
-        print("✓ File loaded successfully")
+        print("File loaded successfully")
 
-        # Extract data
         emails = extract_emails(text)
         phones = extract_phones(text)
-        dates = extract_dates(text)
+        dates  = extract_dates(text)
 
         print("\nFound:")
         print(f"  - {len(emails)} emails")
         print(f"  - {len(phones)} phones")
         print(f"  - {len(dates)} dates")
 
-        # Analyze positions
         results = analyze_matches(text, emails, phones, dates)
 
-        # Write result files
-        write_analysis(results)       # analysis_output.txt
-        write_masked(text, phones)    # masked_output.txt
+        write_analysis(results)
+        write_masked(text, phones)
 
-        print("\n✓ All done!")
+        print("\n All done!")
 
     except Exception as e:
-        print(f"✗ Error: {e}")
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":

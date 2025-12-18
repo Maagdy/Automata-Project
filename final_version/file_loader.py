@@ -5,11 +5,9 @@ def load_file(file_path):
     path = Path(file_path)
     ext = path.suffix.lower()
 
-    # ---- TXT ----
     if ext == '.txt':
         return path.read_text(encoding='utf-8', errors='ignore')
 
-    # ---- PDF ----
     elif ext == '.pdf':
         import PyPDF2
         text = []
@@ -24,14 +22,13 @@ def load_file(file_path):
                         if extracted:
                             text.append(extracted)
                     except:
-                        continue  # skip corrupted pages
+                        continue 
 
             return "\n".join(text)
 
         except Exception as e:
             return f"[Could not read PDF: {e}]"
 
-    # ---- DOCX ----
     elif ext == '.docx':
         try:
             from docx import Document
@@ -40,18 +37,15 @@ def load_file(file_path):
         except Exception as e:
             return f"[Could not read DOCX: {e}]"
 
-    # ---- DOC ----
     elif ext == '.doc':
         try:
             import subprocess, tempfile
-            # Convert DOC → TXT using antiword
             with tempfile.NamedTemporaryFile(delete=False) as tmp:
                 output = subprocess.getoutput(f"antiword '{path}'")
                 return output
         except Exception as e:
             return f"[Could not read DOC: {e}]"
 
-    # ---- JSON ----
     elif ext == '.json':
         import json
         try:
@@ -59,20 +53,17 @@ def load_file(file_path):
         except:
             return "[Could not read JSON]"
 
-    # ---- CSV ----
     elif ext == '.csv':
         try:
             return path.read_text(encoding='utf-8', errors='ignore')
         except:
             return "[Could not read CSV]"
 
-    # ---- HTML ----
     elif ext in ['.html', '.htm']:
         try:
             return path.read_text(encoding='utf-8', errors='ignore')
         except:
             return "[Could not read HTML]"
 
-    # ---- UNSUPPORTED ----
     else:
         return f"[Unsupported file type: {ext}]"
